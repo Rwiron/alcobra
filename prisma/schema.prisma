@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Service {
+  id          String    @id @default(cuid())
+  name        String
+  description String?   @db.Text
+  duration    Int       // Duration in minutes
+  price       Decimal   @db.Decimal(10, 2)
+  category    String?   // Hair, Spa, Nails, etc.
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  bookings    Booking[]
+
+  @@map("services")
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  serviceId       String
+  requestedDate   DateTime      @db.Date
+  requestedTime   DateTime      @db.Time
+  status          BookingStatus @default(PENDING)
+  notes           String?       @db.Text
+  adminNotes      String?       @db.Text
+  confirmedAt     DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  service Service @relation(fields: [serviceId], references: [id])
+
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  bookingId String?
+  sent      Boolean          @default(false)
+  sentAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  NEW_BOOKING
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  BOOKING_REMINDER
+}
