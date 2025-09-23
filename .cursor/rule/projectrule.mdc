@@ -1,0 +1,249 @@
+# Alcobra Salon Backend - Cursor Rules
+
+## Project Overview
+This is the backend API for Alcobra Salon & Spa booking system built with Express.js, TypeScript, Sequelize ORM, and MySQL/Prisma database. The system includes admin authentication, service management, booking system, and comprehensive API documentation with Swagger.
+
+## Tech Stack & Architecture
+- **Runtime**: Node.js (>=18.0.0)
+- **Framework**: Express.js with TypeScript
+- **Database**: MySQL with Sequelize ORM + Prisma (dual ORM setup)
+- **Authentication**: JWT (Access + Refresh tokens)
+- **Documentation**: Swagger/OpenAPI
+- **Testing**: Jest with Supertest
+- **Security**: Helmet, CORS, Rate limiting
+- **File Structure**: Modular MVC architecture
+
+## Code Style & Conventions
+
+### TypeScript Standards
+- Use strict TypeScript configuration
+- Always define proper interfaces for request/response types
+- Use `declare` keyword for model properties in Sequelize models
+- Prefer explicit types over `any`
+- Use optional chaining (`?.`) and nullish coalescing (`??`) where appropriate
+
+### File Naming Conventions
+- **Controllers**: `camelCase` ending with `Controller.ts` (e.g., `authController.ts`)
+- **Models**: `PascalCase` (e.g., `Admin.ts`, `Service.ts`)
+- **Routes**: `camelCase` (e.g., `admin.ts`, `public.ts`)
+- **Middleware**: `camelCase` (e.g., `auth.ts`, `errorHandler.ts`)
+- **Config files**: `camelCase` (e.g., `database.ts`, `swagger.ts`)
+
+### Import/Export Patterns
+- Use path aliases defined in `tsconfig.json` (`@/` for src root)
+- Always use named exports for utilities and services
+- Use default exports for models and main module exports
+- Import order: external libraries → internal modules → types
+
+### API Response Structure
+All API responses should follow this consistent format:
+```typescript
+{
+  success: boolean;
+  message?: string;
+  data?: any;
+  error?: string;
+}
+```
+
+### Error Handling
+- Use custom error classes: `ValidationError`, `UnauthorizedError`, etc.
+- Always use `asyncHandler` wrapper for async route handlers
+- Provide meaningful error messages
+- Log errors appropriately with context
+
+## Database & Models
+
+### Sequelize Model Standards
+- Always define both `Attributes` and `CreationAttributes` interfaces
+- Use `declare` keyword for model properties
+- Include proper validation rules in model definitions
+- Use camelCase for model properties, snake_case for database columns when needed
+- Always include `timestamps: true` in model options
+
+### Prisma Integration
+- Keep Prisma schema in sync with Sequelize models
+- Use Prisma for complex queries and Sequelize for simple CRUD
+- Maintain consistent field naming between both ORMs
+
+## Authentication & Security
+
+### JWT Implementation
+- Use separate access and refresh tokens
+- Access tokens: short-lived (15m default)
+- Refresh tokens: longer-lived (7d default)
+- Always validate token expiry and user status
+- Store sensitive data in environment variables
+
+### Password Security
+- Always hash passwords with bcryptjs before storage
+- Use minimum 8 characters for password validation
+- Never return password fields in API responses
+
+### Rate Limiting
+- Apply rate limiting to all routes
+- Use Redis when available, fallback to memory store
+- Different limits for different endpoint types
+
+## API Documentation
+
+### Swagger Standards
+- Document all endpoints with complete Swagger annotations
+- Include request/response schemas
+- Provide realistic examples
+- Group related endpoints with tags
+- Document authentication requirements
+
+### Endpoint Documentation Format
+```typescript
+/**
+ * @swagger
+ * /api/endpoint:
+ *   post:
+ *     summary: Brief description
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: [] # if auth required
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SchemaName'
+ *     responses:
+ *       200:
+ *         description: Success description
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ResponseSchema'
+ */
+```
+
+## Development Practices
+
+### Environment Configuration
+- Always use environment variables for sensitive data
+- Provide fallback values for development
+- Document required environment variables
+- Use `dotenv` for local development
+
+### Testing Standards
+- Write unit tests for all controllers and services
+- Use integration tests for API endpoints
+- Mock external dependencies
+- Maintain >80% test coverage
+- Use descriptive test names
+
+### Error Logging
+- Log all errors with appropriate context
+- Use structured logging for production
+- Include request IDs for tracing
+- Never log sensitive information
+
+## Project Structure Adherence
+```
+src/
+├── config/          # Configuration files (database, swagger, redis)
+├── controllers/     # Route handlers and business logic
+├── middleware/      # Custom middleware (auth, error handling, rate limiting)
+├── models/          # Database models (Sequelize)
+├── routes/          # Route definitions
+├── services/        # Business logic services
+├── types/           # TypeScript type definitions
+└── utils/           # Utility functions
+```
+
+## Performance & Optimization
+
+### Database Queries
+- Use appropriate indexes
+- Implement pagination for list endpoints
+- Use select fields to limit data transfer
+- Implement caching where appropriate
+
+### API Performance
+- Use compression middleware
+- Implement request size limits
+- Use appropriate HTTP status codes
+- Implement proper caching headers
+
+## Deployment & Production
+
+### Build Process
+- Always build TypeScript to JavaScript for production
+- Use `npm run build` before deployment
+- Ensure all environment variables are set
+- Run database migrations before starting
+
+### Health Checks
+- Implement comprehensive health check endpoint
+- Include database connectivity check
+- Return appropriate status codes
+- Include environment information
+
+## Common Patterns to Follow
+
+### Controller Pattern
+```typescript
+export const controllerName = asyncHandler(async (req: Request, res: Response) => {
+    // Validation
+    // Business logic
+    // Database operations
+    // Return response
+});
+```
+
+### Model Definition Pattern
+```typescript
+export interface ModelAttributes {
+    // Define all attributes
+}
+
+export interface ModelCreationAttributes extends Optional<ModelAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+
+export class Model extends Model<ModelAttributes, ModelCreationAttributes> implements ModelAttributes {
+    // Declare properties
+}
+```
+
+### Route Definition Pattern
+```typescript
+import { Router } from 'express';
+import { authenticateAdmin } from '@/middleware/auth';
+import * as controller from '@/controllers/controllerName';
+
+const router = Router();
+
+router.post('/endpoint', authenticateAdmin, controller.handlerName);
+
+export default router;
+```
+
+## Security Best Practices
+- Always validate input data
+- Use parameterized queries to prevent SQL injection
+- Implement proper CORS configuration
+- Use HTTPS in production
+- Regularly update dependencies
+- Implement proper session management
+- Use security headers (Helmet.js)
+
+## Commit & Documentation Standards
+- Write clear, descriptive commit messages
+- Update API documentation when adding new endpoints
+- Document any breaking changes
+- Keep README updated with setup instructions
+- Version API changes appropriately
+
+## When Adding New Features
+1. Define TypeScript interfaces first
+2. Create/update database models if needed
+3. Implement controller logic with proper error handling
+4. Add comprehensive Swagger documentation
+5. Write tests for new functionality
+6. Update routes and middleware as needed
+7. Test authentication and authorization flows
+8. Verify rate limiting works correctly
+
+Remember: This is a production salon booking system. Prioritize security, reliability, and user experience in all implementations.

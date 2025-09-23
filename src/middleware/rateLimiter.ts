@@ -10,17 +10,17 @@ const createRateLimiter = (keyPrefix: string, points: number, duration: number) 
   });
 };
 
-// General API rate limiter - 100 requests per 15 minutes
-const generalLimiter = createRateLimiter('general_rl', 100, 900);
+// General API rate limiter - 1000 requests per 15 minutes (very generous for development)
+const generalLimiter = createRateLimiter('general_rl', 1000, 900);
 
-// Auth rate limiter - 5 login attempts per 15 minutes
-const authLimiter = createRateLimiter('auth_rl', 5, 900);
+// Auth rate limiter - 100 login attempts per 15 minutes (generous for development)
+const authLimiter = createRateLimiter('auth_rl', 100, 900);
 
-// Booking rate limiter - 10 bookings per hour
-const bookingLimiter = createRateLimiter('booking_rl', 10, 3600);
+// Booking rate limiter - 100 bookings per hour (generous for development)
+const bookingLimiter = createRateLimiter('booking_rl', 100, 3600);
 
-// Upload rate limiter - 20 uploads per hour
-const uploadLimiter = createRateLimiter('upload_rl', 20, 3600);
+// Upload rate limiter - 100 uploads per hour (generous for development)
+const uploadLimiter = createRateLimiter('upload_rl', 100, 3600);
 
 const rateLimitHandler = (limiter: RateLimiterMemory) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -30,7 +30,7 @@ const rateLimitHandler = (limiter: RateLimiterMemory) => {
       next();
     } catch (rateLimiterRes: any) {
       const secs = Math.round(rateLimiterRes.msBeforeNext / 1000) || 1;
-      
+
       res.set('Retry-After', String(secs));
       res.status(429).json({
         success: false,
@@ -46,3 +46,17 @@ export const rateLimiter = rateLimitHandler(generalLimiter);
 export const authRateLimit = rateLimitHandler(authLimiter);
 export const bookingRateLimit = rateLimitHandler(bookingLimiter);
 export const uploadRateLimit = rateLimitHandler(uploadLimiter);
+
+// Export the limiters for manual reset (development only)
+export const resetAuthLimiter = (ip: string) => {
+  return authLimiter.delete(ip);
+};
+
+export const resetAllLimiters = (ip: string) => {
+  return Promise.all([
+    generalLimiter.delete(ip),
+    authLimiter.delete(ip),
+    bookingLimiter.delete(ip),
+    uploadLimiter.delete(ip)
+  ]);
+};

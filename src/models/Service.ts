@@ -25,6 +25,8 @@ export interface ServiceAttributes {
   isBookable: boolean;
   requiresConsultation: boolean;
   imageUrl?: string;
+  images?: string[]; // Array of image URLs
+  videoUrl?: string; // Single video URL
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -34,32 +36,34 @@ export interface ServiceCreationAttributes extends Optional<ServiceAttributes, '
 
 // Service model class
 export class Service extends Model<ServiceAttributes, ServiceCreationAttributes> implements ServiceAttributes {
-  public id!: string;
-  public name!: string;
-  public description?: string;
-  public slug?: string;
-  public duration!: number;
-  public price!: number;
-  public minPrice?: number;
-  public maxPrice?: number;
-  public priceType!: 'fixed' | 'variable' | 'consultation';
-  public serviceType!: 'individual' | 'package' | 'addon';
-  public difficultyLevel!: 'basic' | 'intermediate' | 'advanced' | 'expert';
-  public categoryId?: string;
-  public prerequisites?: string[];
-  public tags?: string[];
-  public preparationTime!: number;
-  public cleanupTime!: number;
-  public sortOrder!: number;
-  public isActive!: boolean;
-  public isBookable!: boolean;
-  public requiresConsultation!: boolean;
-  public imageUrl?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare name: string;
+  declare description?: string;
+  declare slug?: string;
+  declare duration: number;
+  declare price: number;
+  declare minPrice?: number;
+  declare maxPrice?: number;
+  declare priceType: 'fixed' | 'variable' | 'consultation';
+  declare serviceType: 'individual' | 'package' | 'addon';
+  declare difficultyLevel: 'basic' | 'intermediate' | 'advanced' | 'expert';
+  declare categoryId?: string;
+  declare prerequisites?: string[];
+  declare tags?: string[];
+  declare preparationTime: number;
+  declare cleanupTime: number;
+  declare sortOrder: number;
+  declare isActive: boolean;
+  declare isBookable: boolean;
+  declare requiresConsultation: boolean;
+  declare imageUrl?: string;
+  declare images?: string[]; // Array of image URLs
+  declare videoUrl?: string; // Single video URL
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
   // Association with ServiceCategory
-  public readonly category?: ServiceCategory;
+  declare readonly category?: ServiceCategory;
 }
 
 // Initialize Service model
@@ -179,12 +183,27 @@ Service.init(
         isUrl: true,
       },
     },
+    images: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: [],
+      comment: 'Array of image URLs',
+    },
+    videoUrl: {
+      type: DataTypes.STRING(191),
+      allowNull: true,
+      validate: {
+        isUrl: true,
+      },
+      comment: 'Single video URL',
+    },
   },
   {
     sequelize,
     modelName: 'Service',
     tableName: 'services',
     timestamps: true,
+    underscored: false, // Use camelCase column names to match existing database
   }
 );
 

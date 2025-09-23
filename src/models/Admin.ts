@@ -17,13 +17,13 @@ export interface AdminCreationAttributes extends Optional<AdminAttributes, 'id' 
 
 // Admin model class
 export class Admin extends Model<AdminAttributes, AdminCreationAttributes> implements AdminAttributes {
-    public id!: string;
-    public email!: string;
-    public password!: string;
-    public name!: string;
-    public isActive!: boolean;
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+    declare id: string;
+    declare email: string;
+    declare password: string;
+    declare name: string;
+    declare isActive: boolean;
+    declare readonly createdAt: Date;
+    declare readonly updatedAt: Date;
 }
 
 // Initialize Admin model
@@ -61,6 +61,7 @@ Admin.init(
         modelName: 'Admin',
         tableName: 'admins',
         timestamps: true,
+        underscored: false, // Use camelCase column names to match existing database
     }
 );
 

@@ -75,11 +75,17 @@ import { asyncHandler } from '@/middleware/errorHandler';
  * @swagger
  * /api/categories:
  *   get:
- *     summary: Get all service categories
+ *     summary: Get all service categories (for booking flow)
  *     tags: [Services]
+ *     parameters:
+ *       - in: query
+ *         name: includeServiceCount
+ *         schema:
+ *           type: boolean
+ *         description: Include count of bookable services in each category
  *     responses:
  *       200:
- *         description: List of service categories
+ *         description: List of service categories with optional service counts
  *         content:
  *           application/json:
  *             schema:
@@ -91,9 +97,18 @@ import { asyncHandler } from '@/middleware/errorHandler';
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/ServiceCategory'
+ *                     allOf:
+ *                       - $ref: '#/components/schemas/ServiceCategory'
+ *                       - type: object
+ *                         properties:
+ *                           serviceCount:
+ *                             type: integer
+ *                             description: Number of bookable services in this category
+ *                             example: 5
  */
 export const getCategories = asyncHandler(async (req: Request, res: Response) => {
+  const { includeServiceCount, includeServices } = req.query;
+
   const categories = await ServiceCategory.findAll({
     where: { isActive: true },
     order: [['sortOrder', 'ASC'], ['name', 'ASC']],
@@ -104,13 +119,40 @@ export const getCategories = asyncHandler(async (req: Request, res: Response) =>
         where: { isActive: true },
         required: false,
         order: [['sortOrder', 'ASC']],
-      }
+      },
+      // Include services if requested (for booking modal)
+      ...(includeServices === 'true' || includeServiceCount === 'true' ? [{
+        model: Service,
+        as: 'services',
+        where: {
+          isActive: true,
+          isBookable: true
+        },
+        required: false,
+        attributes: includeServices === 'true' ? ['id', 'name', 'price', 'duration'] : ['id']
+      }] : [])
     ]
   });
 
-  res.json({
+  // Process categories for frontend
+  const processedCategories = categories.map(category => {
+    const categoryData = category.toJSON() as any;
+
+    if (includeServices === 'true') {
+      // Format for booking modal - return service names array
+      categoryData.services = categoryData.services ? categoryData.services.map((service: any) => service.name) : [];
+    } else if (includeServiceCount === 'true') {
+      // Just return count
+      categoryData.serviceCount = categoryData.services ? categoryData.services.length : 0;
+      delete categoryData.services;
+    }
+
+    return categoryData;
+  });
+
+  return res.json({
     success: true,
-    data: categories,
+    data: processedCategories,
   });
 });
 
@@ -155,12 +197,15 @@ export const getCategories = asyncHandler(async (req: Request, res: Response) =>
  */
 export const getServices = asyncHandler(async (req: Request, res: Response) => {
   const { categoryId, serviceType, isBookable } = req.query;
-  
-  const whereClause: any = { isActive: true };
-  
+
+  // For public booking flow, default to only bookable services
+  const whereClause: any = {
+    isActive: true,
+    isBookable: isBookable !== undefined ? (isBookable === 'true') : true
+  };
+
   if (categoryId) whereClause.categoryId = categoryId;
   if (serviceType) whereClause.serviceType = serviceType;
-  if (isBookable !== undefined) whereClause.isBookable = isBookable === 'true';
 
   const services = await Service.findAll({
     where: whereClause,
@@ -172,9 +217,14 @@ export const getServices = asyncHandler(async (req: Request, res: Response) => {
       }
     ],
     order: [['sortOrder', 'ASC'], ['name', 'ASC']],
+    attributes: [
+      'id', 'name', 'description', 'slug', 'duration', 'price',
+      'minPrice', 'maxPrice', 'priceType', 'serviceType',
+      'difficultyLevel', 'tags', 'requiresConsultation', 'imageUrl'
+    ]
   });
 
-  res.json({
+  return res.json({
     success: true,
     data: services,
   });
@@ -230,7 +280,7 @@ export const getServiceById = asyncHandler(async (req: Request, res: Response) =
     });
   }
 
-  res.json({
+  return res.json({
     success: true,
     data: service,
   });

@@ -18,26 +18,26 @@ export interface ServiceCategoryAttributes {
 }
 
 // ServiceCategory creation attributes
-export interface ServiceCategoryCreationAttributes extends Optional<ServiceCategoryAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+export interface ServiceCategoryCreationAttributes extends Optional<ServiceCategoryAttributes, 'id' | 'createdAt' | 'updatedAt'> { }
 
 // ServiceCategory model class
 export class ServiceCategory extends Model<ServiceCategoryAttributes, ServiceCategoryCreationAttributes> implements ServiceCategoryAttributes {
-  public id!: string;
-  public name!: string;
-  public description?: string;
-  public slug!: string;
-  public parentId?: string;
-  public imageUrl?: string;
-  public iconClass?: string;
-  public color?: string;
-  public sortOrder!: number;
-  public isActive!: boolean;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare name: string;
+  declare description?: string;
+  declare slug: string;
+  declare parentId?: string;
+  declare imageUrl?: string;
+  declare iconClass?: string;
+  declare color?: string;
+  declare sortOrder: number;
+  declare isActive: boolean;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
   // Association with self (parent-child)
-  public readonly parent?: ServiceCategory;
-  public readonly children?: ServiceCategory[];
+  declare readonly parent?: ServiceCategory;
+  declare readonly children?: ServiceCategory[];
 }
 
 // Initialize ServiceCategory model
@@ -104,6 +104,7 @@ ServiceCategory.init(
     modelName: 'ServiceCategory',
     tableName: 'service_categories',
     timestamps: true,
+    underscored: false, // Use camelCase column names to match existing database
   }
 );
 

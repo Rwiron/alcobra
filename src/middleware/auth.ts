@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { prisma } from '@/index';
+import { Admin } from '@/models/Admin';
 import { UnauthorizedError } from '@/middleware/errorHandler';
 
 interface JwtPayload {
@@ -41,23 +41,21 @@ export const authenticateAdmin = async (
             throw new UnauthorizedError('Access token required');
         }
 
+        const accessSecret = process.env.JWT_ACCESS_SECRET;
+        if (!accessSecret) {
+            throw new UnauthorizedError('JWT secret not configured');
+        }
+
         // Verify JWT token
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_ACCESS_SECRET!
-        ) as JwtPayload;
+        const decoded = jwt.verify(token, accessSecret) as JwtPayload;
 
         // Find admin in database
-        const admin = await prisma.admin.findUnique({
+        const admin = await Admin.findOne({
             where: {
                 id: decoded.adminId,
                 isActive: true
             },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-            }
+            attributes: ['id', 'email', 'name']
         });
 
         if (!admin) {
@@ -98,21 +96,19 @@ export const optionalAuth = async (
             return next();
         }
 
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_ACCESS_SECRET!
-        ) as JwtPayload;
+        const accessSecret = process.env.JWT_ACCESS_SECRET;
+        if (!accessSecret) {
+            return next(); // Silently continue without auth for optional auth
+        }
 
-        const admin = await prisma.admin.findUnique({
+        const decoded = jwt.verify(token, accessSecret) as JwtPayload;
+
+        const admin = await Admin.findOne({
             where: {
                 id: decoded.adminId,
                 isActive: true
             },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-            }
+            attributes: ['id', 'email', 'name']
         });
 
         if (admin) {

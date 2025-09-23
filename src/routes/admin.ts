@@ -1,15 +1,57 @@
 import { Router } from 'express';
 import { authenticateAdmin } from '@/middleware/auth';
-import { authRateLimit, uploadRateLimit } from '@/middleware/rateLimiter';
+import { authRateLimit, uploadRateLimit, resetAllLimiters } from '@/middleware/rateLimiter';
 
-// Controllers (to be implemented)
-// import { login, refreshToken, logout } from '@/controllers/authController';
-// import { getBookings, updateBookingStatus } from '@/controllers/bookingController';
-// import { getServices, createService, updateService, deleteService } from '@/controllers/serviceController';
-// import { uploadMedia } from '@/controllers/uploadController';
-// import { getDashboardStats } from '@/controllers/dashboardController';
+// Controllers
+import { login, refreshToken, logout, getProfile } from '@/controllers/authController';
+import { getAllBookings, updateBookingStatus, getBookingByIdAdmin } from '@/controllers/bookingController';
+import {
+    getAllCategories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    getAllServices,
+    createService,
+    getServiceById,
+    updateService,
+    deleteService
+} from '@/controllers/adminServiceController';
+import {
+    upload,
+    uploadImages,
+    deleteImageById,
+    extractPublicIdFromUrl,
+    generateResponsiveUrls
+} from '@/controllers/uploadController';
+import {
+    uploadLocal,
+    uploadImagesLocal,
+    deleteLocalImages
+} from '@/controllers/localUploadController';
+import { uploadServiceMedia, deleteServiceMedia, uploadMiddleware } from '@/controllers/mediaUploadController';
 
 const router = Router();
+
+// Development only - Reset rate limits (no auth required)
+if (process.env.NODE_ENV === 'development') {
+    router.post('/dev/reset-rate-limits', async (req, res) => {
+        try {
+            const ip = req.ip || 'unknown';
+            await resetAllLimiters(ip);
+            res.json({
+                success: true,
+                message: 'Rate limits reset successfully',
+                ip
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to reset rate limits',
+                error: error.message
+            });
+        }
+    });
+}
 
 // Auth routes (no authentication required)
 /**
@@ -66,13 +108,7 @@ const router = Router();
  *                         name:
  *                           type: string
  */
-router.post('/auth/login', authRateLimit, (req, res) => {
-    res.json({
-        success: true,
-        message: 'Login endpoint - to be implemented',
-        data: null
-    });
-});
+router.post('/auth/login', authRateLimit, login);
 
 /**
  * @swagger
@@ -95,13 +131,7 @@ router.post('/auth/login', authRateLimit, (req, res) => {
  *       200:
  *         description: Token refreshed successfully
  */
-router.post('/auth/refresh', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Refresh token endpoint - to be implemented',
-        data: null
-    });
-});
+router.post('/auth/refresh', refreshToken);
 
 /**
  * @swagger
@@ -115,139 +145,53 @@ router.post('/auth/refresh', (req, res) => {
  *       200:
  *         description: Logout successful
  */
-router.post('/auth/logout', authenticateAdmin, (req, res) => {
-    res.json({
-        success: true,
-        message: 'Logout endpoint - to be implemented',
-        data: null
-    });
-});
+router.post('/auth/logout', authenticateAdmin, logout);
+
+// Get current admin profile
+router.get('/auth/me', authenticateAdmin, getProfile);
 
 // Protected admin routes
 router.use(authenticateAdmin);
 
 // Booking management
-/**
- * @swagger
- * /api/admin/bookings:
- *   get:
- *     summary: Get all bookings
- *     tags: [Admin Bookings]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW]
- *         description: Filter by booking status
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of items per page
- *     responses:
- *       200:
- *         description: List of bookings
- */
-router.get('/bookings', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Get bookings endpoint - to be implemented',
-        data: []
-    });
-});
+// Get all bookings with filtering and pagination
+router.get('/bookings', getAllBookings);
 
-/**
- * @swagger
- * /api/admin/bookings/{id}/status:
- *   put:
- *     summary: Update booking status
- *     tags: [Admin Bookings]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Booking ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - status
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW]
- *               adminNotes:
- *                 type: string
- *     responses:
- *       200:
- *         description: Booking status updated
- */
-router.put('/bookings/:id/status', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Update booking status endpoint - to be implemented',
-        data: null
-    });
-});
+// Get specific booking by ID
+router.get('/bookings/:id', getBookingByIdAdmin);
+
+// Update booking status
+router.put('/bookings/:id/status', updateBookingStatus);
+
+// Category management
+router.get('/categories', getAllCategories);
+router.post('/categories', createCategory);
+router.put('/categories/:id', updateCategory);
+router.delete('/categories/:id', deleteCategory);
 
 // Service management
-router.get('/services', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Get admin services endpoint - to be implemented',
-        data: []
-    });
-});
+router.get('/services', getAllServices);
+router.post('/services', createService);
+router.get('/services/:id', getServiceById);
+router.put('/services/:id', updateService);
+router.delete('/services/:id', deleteService);
 
-router.post('/services', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Create service endpoint - to be implemented',
-        data: null
-    });
-});
+// Cloudinary upload endpoints
+router.post('/upload/cloudinary', uploadRateLimit, upload.array('images', 5), uploadImages);
+router.delete('/upload/cloudinary/:publicId', deleteImageById);
+router.post('/upload/url-to-publicid', extractPublicIdFromUrl);
+router.post('/upload/generate-urls', generateResponsiveUrls);
 
-router.put('/services/:id', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Update service endpoint - to be implemented',
-        data: null
-    });
-});
+// Local upload endpoints
+router.post('/upload/local', uploadRateLimit, uploadLocal.array('images', 5), uploadImagesLocal);
+router.delete('/upload/local/:filename', deleteLocalImages);
 
-router.delete('/services/:id', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Delete service endpoint - to be implemented',
-        data: null
-    });
-});
+// Default upload (can be configured to use either Cloudinary or local)
+router.post('/upload', uploadRateLimit, uploadLocal.array('images', 5), uploadImagesLocal);
 
-// File upload
-router.post('/upload', uploadRateLimit, (req, res) => {
-    res.json({
-        success: true,
-        message: 'Upload endpoint - to be implemented',
-        data: null
-    });
-});
+// Service media upload endpoints (images + video)
+router.post('/upload/media', uploadRateLimit, uploadMiddleware, uploadServiceMedia);
+router.delete('/upload/media/:filename', deleteServiceMedia);
 
 // Dashboard stats
 router.get('/dashboard/stats', (req, res) => {

@@ -3,6 +3,7 @@ import { bookingRateLimit } from '@/middleware/rateLimiter';
 
 // Controllers
 import { getServices, getServiceById, getCategories } from '@/controllers/serviceController';
+import { createBooking, getBookingById } from '@/controllers/bookingController';
 
 const router = Router();
 
@@ -30,6 +31,9 @@ const router = Router();
  */
 // Get service categories
 router.get('/categories', getCategories);
+
+// Get service categories (alias for frontend compatibility)
+router.get('/services/categories', getCategories);
 
 // Get services
 router.get('/services', getServices);
@@ -102,12 +106,13 @@ router.get('/services/:id', getServiceById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/bookings', bookingRateLimit, (req, res) => {
-    res.json({
-        success: true,
-        message: 'Booking endpoint - to be implemented',
-        data: null
-    });
-});
+router.post('/bookings', bookingRateLimit, createBooking);
+
+// Get booking by ID (with phone verification)
+router.get('/bookings/:id', getBookingById);
+
+// Gallery endpoints for frontend gallery detail pages
+router.get('/gallery', getServices); // Use services endpoint for gallery
+router.get('/gallery/:id', getServiceById); // Use service detail for gallery detail
 
 export default router;
