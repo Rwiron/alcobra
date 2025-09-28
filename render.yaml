@@ -3,8 +3,9 @@ services:
     name: alcobra-salon-backend
     env: node
     plan: free
-    buildCommand: npm run build
-    startCommand: node dist/index.js
+    buildCommand: npm run build && npm run seed:salon
+    startCommand: npm start
+    runtime: node
     envVars:
       - key: NODE_ENV
         value: production

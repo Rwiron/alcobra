@@ -16,8 +16,8 @@ const options: swaggerJsdoc.Options = {
         },
         servers: [
             {
-                url: process.env.NODE_ENV === 'production' ? 'https://alcobra.vercel.app' : `http://localhost:${process.env.PORT || 3000}`,
-                description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
+                url: process.env.RENDER_EXTERNAL_URL || (process.env.NODE_ENV === 'production' ? 'https://your-render-app.onrender.com' : `http://localhost:${process.env.PORT || 3000}`),
+                description: process.env.NODE_ENV === 'production' ? 'Production server (Render)' : 'Development server',
             },
         ],
         components: {
