@@ -65,6 +65,20 @@ async function startServer() {
             });
         });
 
+        // Root endpoint
+        app.get('/', (req, res) => {
+            res.json({
+                message: 'Alcobra Salon API',
+                version: '1.0.0',
+                endpoints: {
+                    health: '/health',
+                    docs: '/api-docs',
+                    api: '/api',
+                    admin: '/api/admin'
+                }
+            });
+        });
+
         // Routes
         app.use('/api', publicRoutes);
         app.use('/api/admin', adminRoutes);

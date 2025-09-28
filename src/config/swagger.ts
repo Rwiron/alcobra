@@ -16,8 +16,8 @@ const options: swaggerJsdoc.Options = {
         },
         servers: [
             {
-                url: `http://localhost:${process.env.PORT || 3000}`,
-                description: 'Development server',
+                url: process.env.NODE_ENV === 'production' ? 'https://alcobra.vercel.app' : `http://localhost:${process.env.PORT || 3000}`,
+                description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
             },
         ],
         components: {
@@ -173,7 +173,10 @@ const options: swaggerJsdoc.Options = {
             },
         ],
     },
-    apis: ['./src/routes/*.ts', './src/controllers/*.ts'],
+    apis: [
+        process.env.NODE_ENV === 'production' ? './dist/routes/*.js' : './src/routes/*.ts',
+        process.env.NODE_ENV === 'production' ? './dist/controllers/*.js' : './src/controllers/*.ts'
+    ],
 };
 
 const specs = swaggerJsdoc(options);
