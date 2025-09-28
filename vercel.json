@@ -1,21 +1,9 @@
 {
     "version": 2,
     "buildCommand": "npm run build",
-    "builds": [
-        {
-            "src": "package.json",
-            "use": "@vercel/node",
-            "config": {
-                "includeFiles": [
-                    "dist/**"
-                ]
-            }
+    "functions": {
+        "api/index.ts": {
+            "runtime": "nodejs18.x"
         }
-    ],
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "dist/index.js"
-        }
-    ]
+    }
 }
