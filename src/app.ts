@@ -35,10 +35,19 @@ export async function createApp() {
     }
 
     // Security middleware
-    app.use(helmet());
+    app.use(helmet({
+        crossOriginEmbedderPolicy: false,
+    }));
+
+    // CORS configuration
+    const corsOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3001'];
     app.use(cors({
-        origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+        origin: corsOrigins,
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        preflightContinue: false,
+        optionsSuccessStatus: 204
     }));
 
     // General middleware
@@ -78,6 +87,9 @@ export async function createApp() {
             }
         });
     });
+
+    // Handle preflight requests explicitly
+    app.options('*', cors());
 
     // Routes
     app.use('/api', publicRoutes);

@@ -22,7 +22,7 @@ services:
       - key: DB_DATABASE
         value: alcobrad_db
       - key: CORS_ORIGIN
-        value: https://alcobradubaikigali.com
+        value: https://alcobradubaikigali.com,https://www.alcobradubaikigali.com
       - key: JWT_ACCESS_SECRET
         value: production-super-secret-jwt-access-key-change-this
       - key: JWT_REFRESH_SECRET
