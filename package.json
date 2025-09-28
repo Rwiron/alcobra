@@ -17,6 +17,7 @@
     "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
     "docker:down": "docker-compose -f docker/docker-compose.yml down",
     "seed:salon": "tsx src/seeders/salonServicesSeeder.ts",
+    "debug:render": "node debug-render.js",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   },
