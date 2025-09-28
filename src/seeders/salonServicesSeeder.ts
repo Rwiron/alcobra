@@ -404,7 +404,7 @@ export const seedSalonData = async () => {
                 slug: 'complete-bridal-package',
                 duration: 240,
                 price: 350.00,
-                priceType: 'package',
+                priceType: 'fixed',
                 serviceType: 'package',
                 difficultyLevel: 'expert',
                 categoryId: 'bridal-packages',

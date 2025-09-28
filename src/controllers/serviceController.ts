@@ -220,7 +220,8 @@ export const getServices = asyncHandler(async (req: Request, res: Response) => {
     attributes: [
       'id', 'name', 'description', 'slug', 'duration', 'price',
       'minPrice', 'maxPrice', 'priceType', 'serviceType',
-      'difficultyLevel', 'tags', 'requiresConsultation', 'imageUrl'
+      'difficultyLevel', 'tags', 'requiresConsultation', 'imageUrl',
+      'images', 'videoUrl'
     ]
   });
 

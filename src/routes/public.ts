@@ -4,6 +4,7 @@ import { bookingRateLimit } from '@/middleware/rateLimiter';
 // Controllers
 import { getServices, getServiceById, getCategories } from '@/controllers/serviceController';
 import { createBooking, getBookingById } from '@/controllers/bookingController';
+import { getTransformations, getTransformationById } from '@/controllers/transformationController';
 
 const router = Router();
 
@@ -111,8 +112,13 @@ router.post('/bookings', bookingRateLimit, createBooking);
 // Get booking by ID (with phone verification)
 router.get('/bookings/:id', getBookingById);
 
-// Gallery endpoints for frontend gallery detail pages
-router.get('/gallery', getServices); // Use services endpoint for gallery
+// Gallery endpoints for frontend gallery display (public, no auth required)
+router.get('/gallery', getServices); // Use services endpoint for gallery (now includes images)
+router.get('/gallery/categories', getCategories); // Use categories endpoint for gallery filtering
 router.get('/gallery/:id', getServiceById); // Use service detail for gallery detail
+
+// Transformation endpoints (Before & After) - Public access
+router.get('/transformations', getTransformations);
+router.get('/transformations/:id', getTransformationById);
 
 export default router;

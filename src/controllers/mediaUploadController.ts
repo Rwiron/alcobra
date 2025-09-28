@@ -147,7 +147,7 @@ export const uploadServiceMedia = asyncHandler(async (req: Request, res: Respons
             videoUrl = `/uploads/services/${videoFile.filename}`;
         }
 
-        res.json({
+        return res.json({
             success: true,
             message: `Successfully uploaded ${processedImages.length} image${processedImages.length !== 1 ? 's' : ''}${videoUrl ? ' and 1 video' : ''}`,
             data: {
@@ -212,7 +212,7 @@ export const deleteServiceMedia = asyncHandler(async (req: Request, res: Respons
 
     fs.unlinkSync(filePath);
 
-    res.json({
+    return res.json({
         success: true,
         message: 'File deleted successfully'
     });

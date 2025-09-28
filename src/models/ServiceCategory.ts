@@ -18,7 +18,7 @@ export interface ServiceCategoryAttributes {
 }
 
 // ServiceCategory creation attributes
-export interface ServiceCategoryCreationAttributes extends Optional<ServiceCategoryAttributes, 'id' | 'createdAt' | 'updatedAt'> { }
+export interface ServiceCategoryCreationAttributes extends Optional<ServiceCategoryAttributes, 'id' | 'createdAt' | 'updatedAt' | 'isActive'> { }
 
 // ServiceCategory model class
 export class ServiceCategory extends Model<ServiceCategoryAttributes, ServiceCategoryCreationAttributes> implements ServiceCategoryAttributes {

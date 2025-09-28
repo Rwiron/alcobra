@@ -29,6 +29,12 @@ import {
     deleteLocalImages
 } from '@/controllers/localUploadController';
 import { uploadServiceMedia, deleteServiceMedia, uploadMiddleware } from '@/controllers/mediaUploadController';
+import {
+    getAllTransformations,
+    createTransformation,
+    updateTransformation,
+    deleteTransformation
+} from '@/controllers/transformationController';
 
 const router = Router();
 
@@ -192,6 +198,12 @@ router.post('/upload', uploadRateLimit, uploadLocal.array('images', 5), uploadIm
 // Service media upload endpoints (images + video)
 router.post('/upload/media', uploadRateLimit, uploadMiddleware, uploadServiceMedia);
 router.delete('/upload/media/:filename', deleteServiceMedia);
+
+// Transformation management (Before & After)
+router.get('/transformations', getAllTransformations);
+router.post('/transformations', createTransformation);
+router.put('/transformations/:id', updateTransformation);
+router.delete('/transformations/:id', deleteTransformation);
 
 // Dashboard stats
 router.get('/dashboard/stats', (req, res) => {
