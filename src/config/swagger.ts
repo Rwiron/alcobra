@@ -173,16 +173,79 @@ const options: swaggerJsdoc.Options = {
             },
         ],
     },
-    apis: [
-        process.env.NODE_ENV === 'production' ? './dist/routes/*.js' : './src/routes/*.ts',
-        process.env.NODE_ENV === 'production' ? './dist/controllers/*.js' : './src/controllers/*.ts'
-    ],
+    apis: ['./dist/routes/*.js', './dist/controllers/*.js'],
 };
 
 const specs = swaggerJsdoc(options);
 
 export function setupSwagger(app: Application) {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+    // Simple manual spec for Vercel compatibility
+    const manualSpec = {
+        ...specs,
+        paths: {
+            '/health': {
+                get: {
+                    tags: ['System'],
+                    summary: 'Health check',
+                    responses: {
+                        200: {
+                            description: 'System is healthy',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            status: { type: 'string' },
+                                            timestamp: { type: 'string' },
+                                            environment: { type: 'string' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            '/api/services': {
+                get: {
+                    tags: ['Services'],
+                    summary: 'Get all services',
+                    responses: {
+                        200: {
+                            description: 'List of services',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: { type: 'boolean' },
+                                            data: {
+                                                type: 'array',
+                                                items: { $ref: '#/components/schemas/Service' }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            '/api/categories': {
+                get: {
+                    tags: ['Categories'],
+                    summary: 'Get all categories',
+                    responses: {
+                        200: {
+                            description: 'List of categories'
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(manualSpec, {
         explorer: true,
         customCss: '.swagger-ui .topbar { display: none }',
         customSiteTitle: 'Salon & Spa API Documentation',
