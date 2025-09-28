@@ -173,16 +173,22 @@ const options: swaggerJsdoc.Options = {
             },
         ],
     },
-    apis: ['./dist/routes/*.js', './dist/controllers/*.js'],
+    apis: [
+        './src/routes/*.ts',
+        './src/controllers/*.ts',
+        './dist/routes/*.js',
+        './dist/controllers/*.js'
+    ],
 };
 
 const specs = swaggerJsdoc(options);
 
 export function setupSwagger(app: Application) {
-    // Simple manual spec for Vercel compatibility
-    const manualSpec = {
+    // Add manual health endpoint to the discovered specs
+    const enhancedSpecs: any = {
         ...specs,
         paths: {
+            ...((specs as any).paths || {}),
             '/health': {
                 get: {
                     tags: ['System'],
@@ -205,47 +211,13 @@ export function setupSwagger(app: Application) {
                         }
                     }
                 }
-            },
-            '/api/services': {
-                get: {
-                    tags: ['Services'],
-                    summary: 'Get all services',
-                    responses: {
-                        200: {
-                            description: 'List of services',
-                            content: {
-                                'application/json': {
-                                    schema: {
-                                        type: 'object',
-                                        properties: {
-                                            success: { type: 'boolean' },
-                                            data: {
-                                                type: 'array',
-                                                items: { $ref: '#/components/schemas/Service' }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            '/api/categories': {
-                get: {
-                    tags: ['Categories'],
-                    summary: 'Get all categories',
-                    responses: {
-                        200: {
-                            description: 'List of categories'
-                        }
-                    }
-                }
             }
         }
     };
 
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(manualSpec, {
+    console.log('📚 Swagger paths discovered:', Object.keys(enhancedSpecs.paths || {}));
+
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(enhancedSpecs, {
         explorer: true,
         customCss: '.swagger-ui .topbar { display: none }',
         customSiteTitle: 'Salon & Spa API Documentation',
