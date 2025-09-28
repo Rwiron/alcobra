@@ -10,3 +10,19 @@ services:
         value: production
       - key: PORT
         value: 10000
+      - key: DB_HOST
+        value: 64.31.22.50
+      - key: DB_PORT
+        value: 3306
+      - key: DB_USERNAME
+        value: alcobrad_dv
+      - key: DB_PASSWORD
+        value: Dev@2002
+      - key: DB_DATABASE
+        value: alcobrad_db
+      - key: CORS_ORIGIN
+        value: https://alcobradubaikigali.com
+      - key: JWT_ACCESS_SECRET
+        value: production-super-secret-jwt-access-key-change-this
+      - key: JWT_REFRESH_SECRET
+        value: production-super-secret-jwt-refresh-key-change-this

@@ -1,12 +1,16 @@
 import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 
-// Database configuration
+// Load environment variables
+dotenv.config();
+
+// Database configuration using environment variables
 const sequelize = new Sequelize({
-    database: 'alcobra_db',
-    username: 'root',
-    password: '', // No password for XAMPP default
-    host: 'localhost',
-    port: 3306,
+    database: process.env.DB_DATABASE || 'alcobrad_db',
+    username: process.env.DB_USERNAME || 'alcobrad_dv',
+    password: process.env.DB_PASSWORD || 'Dev@2002',
+    host: process.env.DB_HOST || '64.31.22.50',
+    port: parseInt(process.env.DB_PORT || '3306'),
     dialect: 'mysql',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     define: {
@@ -19,6 +23,11 @@ const sequelize = new Sequelize({
         min: 0,
         acquire: 30000,
         idle: 10000,
+    },
+    dialectOptions: {
+        connectTimeout: 60000,
+        acquireTimeout: 60000,
+        timeout: 60000,
     },
 });
 
