@@ -28,9 +28,14 @@ export async function createApp() {
     // await connectRedis();
     console.log('⚠️  Redis disabled - rate limiting will use memory store');
 
-    // Connect to database
-    await connectDatabase();
-    console.log('✅ Database connected successfully');
+    // Connect to database (optional in serverless)
+    try {
+        await connectDatabase();
+        console.log('✅ Database connected successfully');
+    } catch (error) {
+        console.warn('⚠️ Database connection failed:', error instanceof Error ? error.message : String(error));
+        console.warn('⚠️ Continuing without database connection');
+    }
 
     // Security middleware
     app.use(helmet());
