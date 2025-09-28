@@ -1,0 +1,9 @@
+src
+tests
+*.md
+.env.example
+docker
+docs
+migrations
+seeders
+uploads
