@@ -11,7 +11,7 @@ services:
       - key: PORT
         value: 10000
       - key: DB_HOST
-        value: phoenix.amarserver.com
+        value: 64.31.22.50
       - key: DB_PORT
         value: 3306
       - key: DB_USERNAME

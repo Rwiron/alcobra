@@ -19,13 +19,25 @@ const sequelize = new Sequelize({
         freezeTableName: true,
     },
     pool: {
-        max: 10,
+        max: 5,
         min: 0,
-        acquire: 30000,
+        acquire: 60000,
         idle: 10000,
     },
     dialectOptions: {
         connectTimeout: 60000,
+        acquireTimeout: 60000,
+        timeout: 60000,
+    },
+    retry: {
+        match: [
+            /ECONNRESET/,
+            /ENOTFOUND/,
+            /ECONNREFUSED/,
+            /ETIMEDOUT/,
+            /EHOSTUNREACH/,
+        ],
+        max: 3
     },
 });
 
