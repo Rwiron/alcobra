@@ -10,11 +10,22 @@ console.log('CLOUDINARY_URL:', process.env.CLOUDINARY_URL ? '✅ Set' : '❌ Mis
 // Cloudinary configuration
 // Always configure explicitly to avoid ambiguity across environments
 console.log('🔧 Applying explicit Cloudinary configuration');
+// Sanitize env vars to avoid hidden spaces/newlines that break signatures
+const cloudName = (process.env.CLOUDINARY_CLOUD_NAME || '').trim();
+const apiKey = (process.env.CLOUDINARY_API_KEY || '').trim();
+const apiSecret = (process.env.CLOUDINARY_API_SECRET || '').trim();
+
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
     secure: true,
+});
+
+console.log('🔐 Cloudinary sanitized values:', {
+    cloudNameLength: cloudName.length,
+    apiKeyLength: apiKey.length,
+    apiSecretLength: apiSecret.length,
 });
 
 // Verify configuration
