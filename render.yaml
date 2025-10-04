@@ -27,3 +27,12 @@ services:
         value: production-super-secret-jwt-access-key-change-this
       - key: JWT_REFRESH_SECRET
         value: production-super-secret-jwt-refresh-key-change-this
+      # Cloudinary Configuration
+      - key: CLOUDINARY_CLOUD_NAME
+        value: rwaga
+      - key: CLOUDINARY_API_KEY
+        value: 435655241963356
+      - key: CLOUDINARY_API_SECRET
+        value: MoaOaxCVEainiV1pkZLDtoD_bN8
+      - key: CLOUDINARY_URL
+        value: cloudinary://435655241963356:MoaOaxCVEainiV1pkZLDtoD_bN8@rwaga

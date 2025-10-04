@@ -183,7 +183,21 @@ export const uploadImages = asyncHandler(async (req: Request, res: Response) => 
 
     } catch (error) {
         console.error('Cloudinary upload error:', error);
-        throw new ValidationError('Failed to upload images. Please try again.');
+
+        // Log more detailed error information
+        if (error instanceof Error) {
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+        }
+
+        // Check if it's a Cloudinary-specific error
+        if (error && typeof error === 'object' && 'http_code' in error) {
+            console.error('Cloudinary HTTP code:', (error as any).http_code);
+            console.error('Cloudinary error details:', (error as any).message);
+            throw new ValidationError(`Cloudinary upload failed: ${(error as any).message}`);
+        }
+
+        throw new ValidationError(`Failed to upload images: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 });
 
