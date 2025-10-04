@@ -8,18 +8,14 @@ console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ S
 console.log('CLOUDINARY_URL:', process.env.CLOUDINARY_URL ? '✅ Set' : '❌ Missing');
 
 // Cloudinary configuration
-// Try CLOUDINARY_URL first (recommended), then fallback to individual vars
-if (process.env.CLOUDINARY_URL) {
-    console.log('🌐 Using CLOUDINARY_URL for configuration');
-    // CLOUDINARY_URL automatically configures everything
-} else {
-    console.log('🔧 Using individual environment variables');
-    cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-    });
-}
+// Always configure explicitly to avoid ambiguity across environments
+console.log('🔧 Applying explicit Cloudinary configuration');
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+});
 
 // Verify configuration
 const config = cloudinary.config();

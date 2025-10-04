@@ -31,8 +31,8 @@ services:
       - key: CLOUDINARY_CLOUD_NAME
         value: rwaga
       - key: CLOUDINARY_API_KEY
-        value: 435655241963356
+        value: 435655241963356 
       - key: CLOUDINARY_API_SECRET
-        value: MoaOaxCVEainiV1pkZLDtoD_bN8
+        value: \MoaOaxCVEainiV1pkZLDtoD_bN8
       - key: CLOUDINARY_URL
         value: cloudinary://435655241963356:MoaOaxCVEainiV1pkZLDtoD_bN8@rwaga
