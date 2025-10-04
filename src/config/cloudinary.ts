@@ -1,11 +1,32 @@
 import { v2 as cloudinary } from 'cloudinary';
 
+// Debug: Log environment variables (without exposing secrets)
+console.log('🔧 Cloudinary Config Debug:');
+console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? '✅ Set' : '❌ Missing');
+console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ Set' : '❌ Missing');
+console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ Set' : '❌ Missing');
+console.log('CLOUDINARY_URL:', process.env.CLOUDINARY_URL ? '✅ Set' : '❌ Missing');
+
 // Cloudinary configuration
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Try CLOUDINARY_URL first (recommended), then fallback to individual vars
+if (process.env.CLOUDINARY_URL) {
+    console.log('🌐 Using CLOUDINARY_URL for configuration');
+    // CLOUDINARY_URL automatically configures everything
+} else {
+    console.log('🔧 Using individual environment variables');
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+}
+
+// Verify configuration
+const config = cloudinary.config();
+console.log('📋 Cloudinary Config Loaded:');
+console.log('Cloud Name:', config.cloud_name ? '✅ Loaded' : '❌ Not loaded');
+console.log('API Key:', config.api_key ? '✅ Loaded' : '❌ Not loaded');
+console.log('API Secret:', config.api_secret ? '✅ Loaded' : '❌ Not loaded');
 
 export default cloudinary;
 
